@@ -1,0 +1,46 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  pythonVersion: '3.10'
+
+steps:
+
+# Use Python
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '$(pythonVersion)'
+  displayName: 'Set Python version'
+
+# Install dependencies
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+# Run lint (optional but recommended)
+- script: |
+    pip install flake8
+    flake8 .
+  displayName: 'Run lint check'
+
+# Run tests (if you have tests)
+- script: |
+    pip install pytest
+    pytest
+  displayName: 'Run tests'
+
+# Train model / run main script
+- script: |
+    python main.py
+  displayName: 'Run Credit Score Model'
+
+# Save artifacts (model/output)
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'outputs'
+    artifactName: 'model-output'
+  displayName: 'Publish model artifacts'
